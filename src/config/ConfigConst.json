@@ -1,0 +1,11 @@
+{
+    "info":{
+        "PROJECT_NAME": "IndustryXR",
+        "PROJECT_GROUP": "SINR-G",
+        "IP": "10.188.58.100"
+    },
+    "communication": {
+        "TCP_PORT": "10000"
+    }
+
+}
