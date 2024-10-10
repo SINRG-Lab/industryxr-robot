@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'sinrg_tcp_endpoint'
+package_name = 'sinrg_launch'
 
 setup(
     name=package_name,

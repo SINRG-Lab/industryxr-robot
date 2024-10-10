@@ -20,6 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'sinrg_servo_subscriber = sinrg_servo_controller.servo_controller_sub_node:main',
+            'sinrg_servo_publisher = sinrg_servo_controller.servo_controller_pub_node:main'
         ],
     },
 )
