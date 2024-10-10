@@ -12,7 +12,7 @@ class ServoControllerSubNode(Node):
         # configUtil = ConfigUtil()
         # nodeName = configUtil.getValue("servo", "pub")
         # super().__init__(nodeName)
-        super().__init__("servo_publisher")
+        super().__init__("servo_subscriber")
 
         self.servoController = ServoController()
 

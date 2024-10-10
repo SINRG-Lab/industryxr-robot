@@ -24,19 +24,19 @@ class ServoController(BoardManager):
         else:
             logging.warning("Servo ID not provided")
     
-    def setMotorOff(servoID: int):
+    def setServoOff(servoID: int):
         pass
 
-    def setMotorOn(servoID: int):
+    def setServoOn(servoID: int):
         pass
 
     def degToPulse():
-        pass
+        pass      
 
     def pulseToDeg():
         pass
 
-    def resetPos(id: int):
+    def resetServoPos(id: int):
         pass
 
     def resetArm(self):

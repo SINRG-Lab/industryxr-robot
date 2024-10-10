@@ -557,7 +557,8 @@ if __name__ == "__main__":
     # servo_pos = board.bus_servo_read_position(2)
     # print(servo_pos)
 
-    # board.bus_servo_set_position(0.5, [[10, 500]])
+    board.bus_servo_set_position(1, [[2, 400]])
+    
     # servo_temp = board.bus_servo_read_vin(10)
     # print(type(servo_temp), servo_temp)
     
