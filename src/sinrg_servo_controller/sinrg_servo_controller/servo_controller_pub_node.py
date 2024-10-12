@@ -14,17 +14,28 @@ class ServoControllerPubNode(Node):
         # configUtil = ConfigUtil()
         # nodeName = configUtil.getValue("ros_node_name", "SERVO_CONTROLLER_PUB")
         # self.pollRate = configUtil.getValue("pollRate", "DEFAULT_POLL_RATE")
-        nodeName = "servo_publisher"
+        self.nodeName = "servo_publisher"
         
         self.pollRate = 1
 
-        super().__init__(nodeName)
+        super().__init__(self.nodeName)
 
         self.servoController = ServoController()
 
-        self.tempPub = self.create_publisher(Int64, "/servo/sensor/temp", 10)
-        self.get_logger().info("Publishing Servo Temp")
-        self.timer = self.create_timer(self.pollRate, self.tempPublisher)       
+        # self.tempPub = self.create_publisher(Int64, "/servo/sensor/temp", 10)
+        # self.get_logger().info("Publishing Servo Temp")
+        # self.timer = self.create_timer(self.pollRate, self.tempPublisher) 
+
+        self.tempPub = self.createPublisher(Int64, "/servo/sensor/temp", self.pollRate, \
+                                            self.tempPublisher) 
+
+    def createPublisher(self, msgType, msgTopic: String, pollRate: int, clbFunc, queueSize=10):
+        dataPub = self.create_publisher(msgType, msgTopic, queueSize)
+        self.get_logger().info("Data Publisher Created")
+        timer = self.create_timer(pollRate, clbFunc) 
+
+        return dataPub
+
 
     def tempPublisher(self):
 
@@ -33,17 +44,19 @@ class ServoControllerPubNode(Node):
         tempMsg.data = tempVal
         self.tempPub.publish(tempMsg)
 
-
-
 def main():
     rclpy.init()
     servoPublisher = ServoControllerPubNode()
-    rclpy.spin(servoPublisher)
 
-def _shutdown():
-    logging.info('Shutting Down ROS Publisher Node ${}')
-    rclpy.shutdown()
-
+    try:
+        rclpy.spin(servoPublisher)
+    except KeyboardInterrupt:
+        servoPublisher.get_logger().info("Node interrupted by user keyboard")
+    finally:
+        servoPublisher.get_logger().info("Shutting Down ROS Publisher Node")
+        servoPublisher.destroy_node()
+        rclpy.shutdown()
+    
 if __name__ == '__main__':
     main()
 
