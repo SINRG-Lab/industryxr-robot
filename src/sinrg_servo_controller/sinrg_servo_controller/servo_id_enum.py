@@ -6,5 +6,5 @@ class SERVO_ENUM(Enum):
     MIDDLE_ARM = 3
     UPPER_ARM = 4
     GRIPPER_BASE = 5
-    GRIPPER_LINK = 10
+    GRIPPER_MAIN = 10
     

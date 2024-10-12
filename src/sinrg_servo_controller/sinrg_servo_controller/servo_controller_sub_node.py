@@ -35,9 +35,7 @@ class ServoControllerSubNode(Node):
 
         self.setGripperBaseSub = self.create_subscription(Float32, "/arm/servo/gripper/base", self.setGripperBaseCbk, 10)
 
-        self.setGripperLeftSub = self.create_subscription(Float32, "/arm/servo/gripper/left", self.setGripperLeftCbk, 10)
-        
-        self.setGripperRightSub = self.create_subscription(Float32, "/arm/servo/gripper/right", self.setGripperRightCbk, 10)
+        self.setGripperMainSub = self.create_subscription(Float32, "/arm/servo/gripper/main", self.setGripperMainCbk, 10)
 
         self.get_logger().info("Servo Controller initialized")
 
@@ -51,39 +49,38 @@ class ServoControllerSubNode(Node):
 
         posVal = self.servoController.degToPulse(data)
         self.get_logger().info(f"Data is {data} Value is {posVal}")
-        self.servoController.setPos(servoID= 1, pos=posVal, servoSpeed=0.5)
-
-        # self.get_logger().info("Base position updated, Value= " + data)
-
-        # self.get_logger().info(str(data))
+        self.servoController.setPos(servoID= SERVO_ENUM.BASE_SERVO.value, pos=posVal, servoSpeed=0.5)
 
     def setJointLowerCbk(self, msg):
-        
-        # self.get_logger().info("Gripper Base Position Updated")
-        # self.get_logger().info(str(msg))
-        pass
+        data = msg.data
+
+        posVal = self.servoController.degToPulse(data)
+        self.servoController.setPos(servoID= SERVO_ENUM.LOWER_ARM.value, pos=posVal, servoSpeed=0.5)
+
 
     def setJointMiddleCbk(self, msg):
-        self.get_logger().info("Gripper Base Position Updated")
-        # self.get_logger().info(str(msg))
-        pass
+        data = msg.data
+
+        posVal = self.servoController.degToPulse(data)
+        self.servoController.setPos(servoID= SERVO_ENUM.MIDDLE_ARM.value, pos=posVal, servoSpeed=0.5)
 
     def setJointUpperCbk(self, msg):
-        # self.get_logger().info("Gripper Base Position Updated")
-        # self.get_logger().info(str(msg))
-        pass
+        data = msg.data
+
+        posVal = self.servoController.degToPulse(data)
+        self.servoController.setPos(servoID= SERVO_ENUM.UPPER_ARM.value, pos=posVal, servoSpeed=0.5)
 
     def setGripperBaseCbk(self, msg):
-        # self.get_logger().info("Gripper Base Position Updated")
-        pass
+        data = msg.data
 
-    def setGripperLeftCbk(self, msg):
-        # self.get_logger().info("Gripper Base Position Updated")
-        pass
+        posVal = self.servoController.degToPulse(data)
+        self.servoController.setPos(servoID= SERVO_ENUM.GRIPPER_BASE.value, pos=posVal, servoSpeed=0.5)
 
-    def setGripperRightCbk(self, msg):
-        # self.get_logger().info("Gripper Base Position Updated")
-        pass
+    def setGripperMainCbk(self, msg):
+        data = msg.data
+
+        posVal = self.servoController.degToPulse(data)
+        self.servoController.setPos(servoID= SERVO_ENUM.GRIPPER_MAIN.value, pos=posVal, servoSpeed=0.5)
     
 
     

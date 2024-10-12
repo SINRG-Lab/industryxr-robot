@@ -2,7 +2,9 @@ import rclpy
 import logging
 from rclpy.node import Node
 
-from std_msgs.msg import String, Float64, Int64
+from std_msgs.msg import String, Float32, Int32
+
+from sinrg_servo_controller.servo_id_enum import SERVO_ENUM
 
 # from config.ConfigUtil import ConfigUtil
 
@@ -15,8 +17,21 @@ class ServoControllerPubNode(Node):
         # nodeName = configUtil.getValue("ros_node_name", "SERVO_CONTROLLER_PUB")
         # self.pollRate = configUtil.getValue("pollRate", "DEFAULT_POLL_RATE")
         self.nodeName = "servo_publisher"
+
+        self.baseName = "Base Servo"
+        self.lowerArmName = "Lower Arm"
+        self.middleArmName = "Middle Arm"
+        self.upperArmName = "Upper Arm"
+        self.gripperBaseName = "Gripper Base"
+        self.gripperMainName = "Gripper Main"
         
         self.pollRate = 1
+        self.baseTopic = "/unity/robot/servo/base"
+        self.lowerArmTopic = "/unity/robot/servo/joint/lower"
+        self.middleArmTopic = "/unity/robot/servo/joint/middle"
+        self.upperArmTopic = "/unity/robot/servo/joint/upper"
+        self.gripperBaseTopic = "/unity/robot/servo/gripper/base"
+        self.gripperMainTopic = "/unity/robot/servo/gripper/main"
 
         super().__init__(self.nodeName)
 
@@ -26,23 +41,78 @@ class ServoControllerPubNode(Node):
         # self.get_logger().info("Publishing Servo Temp")
         # self.timer = self.create_timer(self.pollRate, self.tempPublisher) 
 
-        self.tempPub = self.createPublisher(Int64, "/servo/sensor/temp", self.pollRate, \
-                                            self.tempPublisher) 
+        # self.tempPub = self.createPublisher(Int64, "/servo/sensor/temp", self.pollRate, \
+        #                                     self.tempPublisher)
 
-    def createPublisher(self, msgType, msgTopic: String, pollRate: int, clbFunc, queueSize=10):
+        self.basePub = self.createPublisher(self.baseName, Int32, self.baseTopic, self.pollRate, \
+                                            self.basePublisher)
+
+        self.lowerArmPub = self.createPublisher(self.lowerArmName, Int32, self.lowerArmTopic, self.pollRate, \
+                                            self.lowerArmPublisher)
+
+        self.middleArmPub = self.createPublisher(self.middleArmName, Int32, self.middleArmTopic, self.pollRate, \
+                                            self.middleArmPublisher)
+
+        self.upperArmPub = self.createPublisher(self.upperArmName, Int32, self.upperArmTopic, self.pollRate, \
+                                            self.upperArmPublisher)
+
+        self.gripperBasePub = self.createPublisher(self.gripperBaseName, Int32, self.gripperBaseTopic, self.pollRate, \
+                                            self.gripperBasePublisher) 
+        
+        self.gripperMainPub = self.createPublisher(self.gripperMainName, Int32, self.gripperMainTopic, self.pollRate, \
+                                            self.gripperMainPublisher) 
+
+        
+    def basePublisher(self):
+        data = self.servoController.getPos(SERVO_ENUM.BASE_SERVO.value)
+        servoPos = self.servoController.degToPulse(data)
+        val = Int32(servoPos)
+
+        self.basePub.publish(val)
+
+    def lowerArmPublisher(self):
+        data = self.servoController.getPos(SERVO_ENUM.LOWER_ARM.value)
+        servoPos = self.servoController.degToPulse(data)
+        val = Int32(servoPos)
+        self.lowerArmPub.publish(val)
+
+    def middleArmPublisher(self):
+        data = self.servoController.getPos(SERVO_ENUM.MIDDLE_ARM.value)
+        servoPos = self.servoController.degToPulse(data)
+        val = Int32(servoPos)
+        self.middleArmPub.publish(val)
+
+    def upperArmPublisher(self):
+        data = self.servoController.getPos(SERVO_ENUM.UPPER_ARM.value)
+        servoPos = self.servoController.degToPulse(data)
+        val = Int32(servoPos)
+        self.upperArmPub.publish(val)
+
+    def gripperBasePublisher(self):
+        data = self.servoController.getPos(SERVO_ENUM.GRIPPER_BASE.value)
+        servoPos = self.servoController.degToPulse(data)
+        val = Int32(servoPos)
+        self.gripperBasePub.publish(val)
+
+    def gripperMainPublisher(self):
+        data = self.servoController.getPos(SERVO_ENUM.GRIPPER_MAIN.value)
+        servoPos = self.servoController.degToPulse(data)
+        val = Int32(servoPos)
+        self.gripperMainPub.publish(val)
+
+    # def tempPublisher(self):
+
+    #     tempMsg = Int64()
+    #     tempVal = self.servoController.getServoTemp(10)[0]
+    #     tempMsg.data = tempVal
+    #     self.tempPub.publish(tempMsg)
+
+    def createPublisher(self, publisherName, msgType, msgTopic: String, pollRate: int, clbFunc, queueSize=10):
         dataPub = self.create_publisher(msgType, msgTopic, queueSize)
-        self.get_logger().info("Data Publisher Created")
+        self.get_logger().info(f"Publisher - {publisherName} Created")
         timer = self.create_timer(pollRate, clbFunc) 
 
         return dataPub
-
-
-    def tempPublisher(self):
-
-        tempMsg = Int64()
-        tempVal = self.servoController.getServoTemp(10)[0]
-        tempMsg.data = tempVal
-        self.tempPub.publish(tempMsg)
 
 def main():
     rclpy.init()

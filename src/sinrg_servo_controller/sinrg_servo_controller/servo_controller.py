@@ -49,11 +49,15 @@ class ServoController(BoardManager):
         val = ( data / self.deg_max ) * self.pwm_max
         return val
 
-    def pulseToDeg():
-        pass
+    def pulseToDeg(self, data: int):
+        val = (data / self.pwm_max) * self.deg_max
+        return val
 
-    def resetServoPos(id: int):
-        pass
+    def resetServoPos(self, servoID: int):
+        if(servoID):
+            return self.getBoard().bus_servo_set_position(1, [servoID, 500])
+        else:
+            return -1
 
     def resetArm(self):
         self.getBoard().bus_servo_set_position(1, ((10, 500), (5, 500), (4, 500 ), (3, 500), (2, 500), (1, 500)))
