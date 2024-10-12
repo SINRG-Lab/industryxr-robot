@@ -25,7 +25,7 @@ class ServoControllerPubNode(Node):
         self.gripperBaseName = "Gripper Base"
         self.gripperMainName = "Gripper Main"
         
-        self.pollRate = 1
+        self.pollRate = 0.2
         self.baseTopic = "/unity/robot/servo/base"
         self.lowerArmTopic = "/unity/robot/servo/joint/lower"
         self.middleArmTopic = "/unity/robot/servo/joint/middle"
@@ -64,41 +64,53 @@ class ServoControllerPubNode(Node):
 
         
     def basePublisher(self):
-        data = self.servoController.getPos(SERVO_ENUM.BASE_SERVO.value)
-        servoPos = self.servoController.degToPulse(data)
-        val = Int32(servoPos)
+        data = self.servoController.getPos(SERVO_ENUM.BASE_SERVO.value)[0]
+        servoPos = self.servoController.pulseToDeg(data)
+        msg = Int32()
+        msg.data = servoPos
+        print(msg.data)
 
-        self.basePub.publish(val)
+        self.basePub.publish(msg)
 
     def lowerArmPublisher(self):
-        data = self.servoController.getPos(SERVO_ENUM.LOWER_ARM.value)
-        servoPos = self.servoController.degToPulse(data)
-        val = Int32(servoPos)
-        self.lowerArmPub.publish(val)
+        data = self.servoController.getPos(SERVO_ENUM.LOWER_ARM.value)[0]
+        servoPos = self.servoController.pulseToDeg(data)
+        msg = Int32()
+        msg.data = servoPos
+
+        self.lowerArmPub.publish(msg)
 
     def middleArmPublisher(self):
-        data = self.servoController.getPos(SERVO_ENUM.MIDDLE_ARM.value)
-        servoPos = self.servoController.degToPulse(data)
-        val = Int32(servoPos)
-        self.middleArmPub.publish(val)
+        data = self.servoController.getPos(SERVO_ENUM.MIDDLE_ARM.value)[0]
+        servoPos = self.servoController.pulseToDeg(data)
+        msg = Int32()
+        msg.data = servoPos
+
+        self.middleArmPub.publish(msg)
 
     def upperArmPublisher(self):
-        data = self.servoController.getPos(SERVO_ENUM.UPPER_ARM.value)
-        servoPos = self.servoController.degToPulse(data)
-        val = Int32(servoPos)
-        self.upperArmPub.publish(val)
+        data = self.servoController.getPos(SERVO_ENUM.UPPER_ARM.value)[0]
+        servoPos = self.servoController.pulseToDeg(data)
+        msg = Int32()
+        msg.data = servoPos
+
+        self.upperArmPub.publish(msg)
 
     def gripperBasePublisher(self):
-        data = self.servoController.getPos(SERVO_ENUM.GRIPPER_BASE.value)
-        servoPos = self.servoController.degToPulse(data)
-        val = Int32(servoPos)
-        self.gripperBasePub.publish(val)
+        data = self.servoController.getPos(SERVO_ENUM.GRIPPER_BASE.value)[0]
+        servoPos = self.servoController.pulseToDeg(data)
+        msg = Int32()
+        msg.data = servoPos
+
+        self.gripperBasePub.publish(msg)
 
     def gripperMainPublisher(self):
-        data = self.servoController.getPos(SERVO_ENUM.GRIPPER_MAIN.value)
-        servoPos = self.servoController.degToPulse(data)
-        val = Int32(servoPos)
-        self.gripperMainPub.publish(val)
+        data = self.servoController.getPos(SERVO_ENUM.GRIPPER_MAIN.value)[0]
+        servoPos = self.servoController.pulseToDeg(data)
+        msg = Int32()
+        msg.data = servoPos
+
+        self.gripperMainPub.publish(msg)
 
     # def tempPublisher(self):
 

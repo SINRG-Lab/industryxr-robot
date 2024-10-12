@@ -21,7 +21,7 @@ class ServoController(BoardManager):
                 servoSpeed (int) - servo speed; DEFAULT = 1
         """
 
-        self.getBoard().bus_servo_set_position(servoSpeed, ((servoID, pos)))
+        self.getBoard().bus_servo_set_position(servoSpeed, [[servoID, pos]])
         
     
     def getPos(self, servoID: int):
@@ -47,15 +47,15 @@ class ServoController(BoardManager):
 
     def degToPulse(self, data: float):
         val = ( data / self.deg_max ) * self.pwm_max
-        return val
+        return int(val)
 
     def pulseToDeg(self, data: int):
         val = (data / self.pwm_max) * self.deg_max
-        return val
+        return int(val)
 
     def resetServoPos(self, servoID: int):
         if(servoID):
-            return self.getBoard().bus_servo_set_position(1, [servoID, 500])
+            return self.getBoard().bus_servo_set_position(1, [[servoID, 500]])
         else:
             return -1
 
