@@ -44,23 +44,23 @@ class ServoControllerPubNode(Node):
         # self.tempPub = self.createPublisher(Int64, "/servo/sensor/temp", self.pollRate, \
         #                                     self.tempPublisher)
 
-        self.basePub = self.createPublisher(self.baseName, Int32, self.baseTopic, self.pollRate, \
-                                            self.basePublisher)
+        # self.basePub = self.createPublisher(self.baseName, Int32, self.baseTopic, self.pollRate, \
+        #                                     self.basePublisher)
 
-        self.lowerArmPub = self.createPublisher(self.lowerArmName, Int32, self.lowerArmTopic, self.pollRate, \
-                                            self.lowerArmPublisher)
+        # self.lowerArmPub = self.createPublisher(self.lowerArmName, Int32, self.lowerArmTopic, self.pollRate, \
+        #                                     self.lowerArmPublisher)
 
-        self.middleArmPub = self.createPublisher(self.middleArmName, Int32, self.middleArmTopic, self.pollRate, \
-                                            self.middleArmPublisher)
+        # self.middleArmPub = self.createPublisher(self.middleArmName, Int32, self.middleArmTopic, self.pollRate, \
+        #                                     self.middleArmPublisher)
 
-        self.upperArmPub = self.createPublisher(self.upperArmName, Int32, self.upperArmTopic, self.pollRate, \
-                                            self.upperArmPublisher)
+        # self.upperArmPub = self.createPublisher(self.upperArmName, Int32, self.upperArmTopic, self.pollRate, \
+        #                                     self.upperArmPublisher)
 
-        self.gripperBasePub = self.createPublisher(self.gripperBaseName, Int32, self.gripperBaseTopic, self.pollRate, \
-                                            self.gripperBasePublisher) 
+        # self.gripperBasePub = self.createPublisher(self.gripperBaseName, Int32, self.gripperBaseTopic, self.pollRate, \
+        #                                     self.gripperBasePublisher) 
         
-        self.gripperMainPub = self.createPublisher(self.gripperMainName, Int32, self.gripperMainTopic, self.pollRate, \
-                                            self.gripperMainPublisher) 
+        # self.gripperMainPub = self.createPublisher(self.gripperMainName, Int32, self.gripperMainTopic, self.pollRate, \
+        #                                     self.gripperMainPublisher) 
 
         
     def basePublisher(self):
@@ -119,10 +119,10 @@ class ServoControllerPubNode(Node):
     #     tempMsg.data = tempVal
     #     self.tempPub.publish(tempMsg)
 
-    def createPublisher(self, publisherName, msgType, msgTopic: String, pollRate: int, clbFunc, queueSize=10):
+    def createPublisher(self, publisherName, msgType, msgTopic: String, pollRate: int, clbFunc, queueSize=1):
         dataPub = self.create_publisher(msgType, msgTopic, queueSize)
         self.get_logger().info(f"Publisher - {publisherName} Created")
-        timer = self.create_timer(pollRate, clbFunc) 
+        self.timer = self.create_timer(pollRate, clbFunc) 
 
         return dataPub
 

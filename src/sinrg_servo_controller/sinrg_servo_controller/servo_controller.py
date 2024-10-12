@@ -1,9 +1,12 @@
 
 import logging
 
+import threading
+import time
+
 from sinrg_robot_sdk.robot_board_manager import BoardManager
 
-class ServoController(BoardManager):
+class ServoController:
 
     def __init__(self):
         super().__init__()
@@ -13,6 +16,11 @@ class ServoController(BoardManager):
         self.deg_min = 0
         self.deg_max = 180
 
+        self.boardManager = BoardManager()
+
+        self.lock = threading.Lock()
+        
+
     def setPos(self, servoID:int, pos: int, servoSpeed: int=1):
         """This class sets the position of the servo motor.
             Arguments:
@@ -21,12 +29,12 @@ class ServoController(BoardManager):
                 servoSpeed (int) - servo speed; DEFAULT = 1
         """
 
-        self.getBoard().bus_servo_set_position(servoSpeed, [[servoID, pos]])
+        self.boardManager.getBoard().bus_servo_set_position(servoSpeed, [[servoID, pos]])
         
     
     def getPos(self, servoID: int):
         if(servoID):
-            return self.getBoard().bus_servo_read_position(servo_id= servoID)
+            return self.boardManager.getBoard().bus_servo_read_position(servo_id= servoID)
         else:
             return -1
 
@@ -35,7 +43,7 @@ class ServoController(BoardManager):
 
     def getServoTemp(self, servoID: int):
         if(servoID):
-            return self.getBoard().bus_servo_read_temp(servo_id=servoID)
+            return self.boardManager.getBoard().bus_servo_read_temp(servo_id=servoID)
         else:
             logging.warning("Servo ID not provided")
     
@@ -55,12 +63,18 @@ class ServoController(BoardManager):
 
     def resetServoPos(self, servoID: int):
         if(servoID):
-            return self.getBoard().bus_servo_set_position(1, [[servoID, 500]])
+            return self.boardManager.getBoard().bus_servo_set_position(1, [[servoID, 500]])
         else:
             return -1
 
     def resetArm(self):
-        self.getBoard().bus_servo_set_position(1, ((10, 500), (5, 500), (4, 500 ), (3, 500), (2, 500), (1, 500)))
+        self.boardManager.getBoard().bus_servo_set_position(1, ((10, 500), (5, 500), (4, 500 ), (3, 500), (2, 500), (1, 500)))
+        time.sleep(0.02)
+
+        self.boardManager.getBoard().bus_servo_set_position(1, ((10, 500), (5, 500), (4, 500 ), (3, 500), (2, 500), (1, 500)))
+        time.sleep(0.02)
+
+
 
 
 

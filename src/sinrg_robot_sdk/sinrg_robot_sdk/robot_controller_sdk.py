@@ -548,16 +548,34 @@ def pwm_servo_test(board):
 if __name__ == "__main__":
     board = Board()
     board.enable_reception()
+    board.bus_servo_set_position(0.5, [[1, 0]])
+
+    # time.sleep(2)
+
+    # for i in range(0, 300, 10):
+    #     board.bus_servo_set_position(0.5, [[1, i]])
+    #     time.sleep(0.2)
+
+    # data = board.get_sbus()
+    # print(data)
+
+    # time.sleep(2)
+
+    # for i in range(1000, -1, -10):
+    #     board.bus_servo_set_position(0.5, [[1, i]])
+        # time.sleep(0.2)
+
+    # board.enable_reception()
     # print("Robot Controller Initialized...")
     
     # time.sleep(1)
 
-    # board.bus_servo_set_position(0.5, [[1, 850]])
+    # board.bus_servo_set_position(0.5, [[1, 1000]])
     # board.set_buzzer(3000, 0.15, 0.05, 5)
-    # servo_pos = board.bus_servo_read_position(2)
+    # servo_pos = board.bus_servo_read_position(1)
     # print(servo_pos)
 
-    board.bus_servo_set_position(1, [[2, 400]])
+    # board.bus_servo_set_position(1, [[2, 400]])
     
     # servo_temp = board.bus_servo_read_vin(10)
     # print(type(servo_temp), servo_temp)

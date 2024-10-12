@@ -7,16 +7,25 @@ from datetime import datetime, timezone
 from sinrg_robot_sdk.robot_controller_sdk import Board
 
 class BoardManager():
+    
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(BoardManager, cls).__new__(cls)
+        return cls._instance
 
     def __init__(self):
 
         # self.configUtil = ConfigUtil() 
         # self.uartAddress = self.configUtil.getValue("communication", "UART_ADDRESS")
-        self.uartAddress = "/dev/ttyACM0"
-        self.board = Board(device= self.uartAddress)
-        self._activateBoard()
-        
-        self.setTimestamp()
+        if hasattr(self, 'Initialized'):
+            self.uartAddress = "/dev/ttyACM0"
+            self.testValue = 2
+            self.board = Board(device= self.uartAddress)
+            self._activateBoard()
+            
+            self.setTimestamp()
 
     def getBoard(self):
         return self.board
@@ -37,6 +46,11 @@ class BoardManager():
 
     def getTimestamp(self):
         return self.timestamp
+
+    # def __new__(cls):
+    #     if cls._instance is None:
+    #         cls._instance = super(BoardManager, cls).__new__(cls)
+    #     return cls._instance
 
     
 
