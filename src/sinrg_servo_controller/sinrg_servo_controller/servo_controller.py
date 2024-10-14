@@ -2,14 +2,15 @@
 import logging
 
 import threading
-import time
+from time import sleep
+
+from datetime import datetime, timezone
 
 from sinrg_robot_sdk.robot_board_manager import BoardManager
 
-class ServoController:
+class ServoController():
 
     def __init__(self):
-        super().__init__()
 
         self.pwm_min = 0
         self.pwm_max = 1000
@@ -17,9 +18,9 @@ class ServoController:
         self.deg_max = 180
 
         self.boardManager = BoardManager()
-
-        self.lock = threading.Lock()
-        
+        # print("BOARD STATUS:"+ str(self.boardManager.getBoardStatus()))
+        # self.boardManager2 = BoardManager()
+        # print(self.boardManager is self.boardManager2)
 
     def setPos(self, servoID:int, pos: int, servoSpeed: int=1):
         """This class sets the position of the servo motor.
@@ -63,16 +64,21 @@ class ServoController:
 
     def resetServoPos(self, servoID: int):
         if(servoID):
+            # self.getBoard().bus_servo_set_position(1, [[servoID, 500]])
             return self.boardManager.getBoard().bus_servo_set_position(1, [[servoID, 500]])
         else:
             return -1
 
     def resetArm(self):
         self.boardManager.getBoard().bus_servo_set_position(1, ((10, 500), (5, 500), (4, 500 ), (3, 500), (2, 500), (1, 500)))
-        time.sleep(0.02)
+        sleep(0.02)
 
         self.boardManager.getBoard().bus_servo_set_position(1, ((10, 500), (5, 500), (4, 500 ), (3, 500), (2, 500), (1, 500)))
-        time.sleep(0.02)
+        sleep(0.02)
+
+    def getCurrentTimestamp(self):
+        timestamp = str(datetime.now(timezone.utc).isoformat())
+        return timestamp
 
 
 

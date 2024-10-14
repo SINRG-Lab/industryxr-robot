@@ -7,6 +7,7 @@ from std_msgs.msg import String, Float32, Int32
 from sinrg_servo_controller.servo_id_enum import SERVO_ENUM
 
 # from config.ConfigUtil import ConfigUtil
+from sinrg_interfaces.msg import ServoPosition
 
 from sinrg_servo_controller.servo_controller import ServoController
 
@@ -36,6 +37,8 @@ class ServoControllerPubNode(Node):
         super().__init__(self.nodeName)
 
         self.servoController = ServoController()
+
+        # self.sbus_pub = self.create_publisher(ServoPosition, )
 
         # self.tempPub = self.create_publisher(Int64, "/servo/sensor/temp", 10)
         # self.get_logger().info("Publishing Servo Temp")

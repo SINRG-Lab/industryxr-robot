@@ -21,23 +21,23 @@ class ServoControllerSubNode(Node):
 
         self.get_logger().info("Initializing Servo Controller...")
 
-        self.resetArmSub = self.create_subscription(Bool, "/arm/servo/reset/all", self.resetArmCbk, 10)
-        self.get_logger().info("reset servo topic successfully subscribed")
+        self.resetArmSub = self.create_subscription(Bool, "/arm/servo/reset/all", self.resetArmCbk, 1)
+        self.get_logger().info("reset servo subscriber initialized")
 
-        self.setBaseSub = self.create_subscription(Float32, "/arm/servo/base", self.setBaseCbk, 10)
-        self.get_logger().info("servo base topic successfully subscribed")
+        self.setBaseSub = self.create_subscription(Float32, "/arm/servo/base", self.setBaseCbk, 1)
+        # self.get_logger().info("servo base topic successfully subscribed")
 
-        self.setLowerArmSub = self.create_subscription(Float32, "/arm/servo/joint/lower", self.setJointLowerCbk, 10)
+        self.setLowerArmSub = self.create_subscription(Float32, "/arm/servo/joint/lower", self.setJointLowerCbk, 1)
 
-        self.setMiddleArmSub = self.create_subscription(Float32, "/arm/servo/joint/middle", self.setJointMiddleCbk, 10)
+        self.setMiddleArmSub = self.create_subscription(Float32, "/arm/servo/joint/middle", self.setJointMiddleCbk, 1)
 
-        self.setUpperArmSub = self.create_subscription(Float32, "/arm/servo/joint/upper", self.setJointUpperCbk, 10)
+        self.setUpperArmSub = self.create_subscription(Float32, "/arm/servo/joint/upper", self.setJointUpperCbk, 1)
 
-        self.setGripperBaseSub = self.create_subscription(Float32, "/arm/servo/gripper/base", self.setGripperBaseCbk, 10)
+        self.setGripperBaseSub = self.create_subscription(Float32, "/arm/servo/gripper/base", self.setGripperBaseCbk, 1)
 
-        self.setGripperMainSub = self.create_subscription(Float32, "/arm/servo/gripper/main", self.setGripperMainCbk, 10)
+        self.setGripperMainSub = self.create_subscription(Float32, "/arm/servo/gripper/main", self.setGripperMainCbk, 1)
 
-        self.get_logger().info("Servo Controller initialized")
+        self.get_logger().info("Servo Motors Subscribers initialized")
 
 
     def resetArmCbk(self, msg):
