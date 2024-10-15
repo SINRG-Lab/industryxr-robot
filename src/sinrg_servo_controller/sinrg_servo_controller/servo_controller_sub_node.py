@@ -47,39 +47,46 @@ class ServoControllerSubNode(Node):
     def setBaseCbk(self, msg):
         data = msg.data
 
-        posVal = self.servoController.degToPulse(data)
-        self.get_logger().info(f"Data is {data} Value is {posVal}")
+        # posVal = self.servoController.degToPulse(data)
+        posVal = data
+        # self.get_logger().info(f"Data is {data} Value is {posVal}")
+        self.get_logger().info(f"Base moved with data: {data}")
         self.servoController.setPos(servoID= SERVO_ENUM.BASE_SERVO.value, pos=posVal, servoSpeed=0.5)
 
     def setJointLowerCbk(self, msg):
         data = msg.data
-
-        posVal = self.servoController.degToPulse(data)
+        self.get_logger().info(f"Lower Joint moved with data: {data}")
+        # posVal = self.servoController.degToPulse(data)
+        posVal = data
         self.servoController.setPos(servoID= SERVO_ENUM.LOWER_ARM.value, pos=posVal, servoSpeed=0.5)
 
 
     def setJointMiddleCbk(self, msg):
         data = msg.data
-
-        posVal = self.servoController.degToPulse(data)
+        self.get_logger().info(f"Middle moved with data: {data}")
+        # posVal = self.servoController.degToPulse(data)
+        posVal = data
         self.servoController.setPos(servoID= SERVO_ENUM.MIDDLE_ARM.value, pos=posVal, servoSpeed=0.5)
 
     def setJointUpperCbk(self, msg):
         data = msg.data
-
-        posVal = self.servoController.degToPulse(data)
+        self.get_logger().info(f"Upper moved with data: {data}")
+        # posVal = self.servoController.degToPulse(data)
+        posVal = data
         self.servoController.setPos(servoID= SERVO_ENUM.UPPER_ARM.value, pos=posVal, servoSpeed=0.5)
 
     def setGripperBaseCbk(self, msg):
         data = msg.data
-
-        posVal = self.servoController.degToPulse(data)
+        self.get_logger().info(f"Gripper Base moved with data: {data}")
+        # posVal = self.servoController.degToPulse(data)
+        posVal = data
         self.servoController.setPos(servoID= SERVO_ENUM.GRIPPER_BASE.value, pos=posVal, servoSpeed=0.5)
 
     def setGripperMainCbk(self, msg):
         data = msg.data
-
-        posVal = self.servoController.degToPulse(data)
+        self.get_logger().info(f"Gripper Main moved with data: {data}")
+        # posVal = self.servoController.degToPulse(data)
+        posVal = data
         self.servoController.setPos(servoID= SERVO_ENUM.GRIPPER_MAIN.value, pos=posVal, servoSpeed=0.5)
     
 

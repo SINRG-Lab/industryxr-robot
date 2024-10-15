@@ -3,10 +3,11 @@ import logging
 from datetime import datetime, timezone
 
 # from config.ConfigUtil import ConfigUtil
-
+from rclpy.node import Node
+from std_msgs.msg import Bool
 from sinrg_robot_sdk.robot_controller_sdk import Board
 
-class BoardManager:
+class BoardManager(Node):
     
     _instance = None
     _isBoardActive = None
@@ -16,14 +17,17 @@ class BoardManager:
     #     if cls._instance is None:
     #         cls._instance = super(BoardManager, cls).__new__(cls)
     #     return cls._instance
+    
 
     def __init__(self):
         # self.configUtil = ConfigUtil() 
         # self.uartAddress = self.configUtil.getValue("communication", "UART_ADDRESS")
         # if hasattr(self, 'Initialized'):
+        # self.boardStatus = self.create_subscription(Bool, "/board/status", self.setBoardCbk, 1)
+
         if BoardManager._isBoardActive is None:
             self.uartAddress = "/dev/ttyACM0"
-            self.setBoard()
+            self.setBoardCbk()
             # self.setBoard()
             # self.board = Board(device= self.uartAddress)
             # self._activateBoard()
@@ -33,7 +37,7 @@ class BoardManager:
         else:
             print("Board is already active. using prev instance")
 
-    def setBoard(self):
+    def setBoardCbk(self, msg):
         BoardManager._board = Board(device= self.uartAddress)
         self._activateBoard()
         BoardManager._isBoardActive = True

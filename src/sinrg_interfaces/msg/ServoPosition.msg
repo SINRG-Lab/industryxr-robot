@@ -1,3 +1,3 @@
-uint16 id
 uint16 position
+string direction
 string timestamp

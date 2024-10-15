@@ -24,34 +24,66 @@ class ServoController():
         # self.boardManager2 = BoardManager()
         # print(self.boardManager is self.boardManager2)
 
-    def setPos(self, servoID:int, pos: int, servoSpeed: int=1):
+    def setPos(self, servoID:int, pos: int, multiplier: int=1, servoSpeed: int=0.5):
         """This class sets the position of the servo motor.
             Arguments:
                 servoID (int) - ID for the servo
                 pos (int) - position in PWM
                 servoSpeed (int) - servo speed; DEFAULT = 1
         """
-        currentPos = self.getPos(servoID=servoID)
-        stepSize = 20
+        currentPos = self.getRawPos(servoID=servoID)
+        stepSize = 100
+
+        # newPos = (currentPos + stepSize) * multiplier
+        # newPos = max(0, min(newPos, 240))
+    
+        i = 0
+        # while(currentPos< 995):
+        #     # currentPos = self.getRawPos(servoID=servoID)
+        #     print(currentPos + i)
+        #     self.boardManager.getBoard().bus_servo_set_position(servoSpeed, [[servoID, currentPos + i]])
+        #     i+=10
+        #     sleep(0.2)
+        
+        # for i in range(0, stepSize, 5):
+        if(pos > 0):
+            self.boardManager.getBoard().bus_servo_set_position(servoSpeed, [[servoID, currentPos + stepSize]])
+        else:
+            self.boardManager.getBoard().bus_servo_set_position(servoSpeed, [[servoID, currentPos - stepSize]])
+        # sleep(0.2)
+    
+
+
+
+        # self.boardManager.getBoard().bus_servo_set_position(servoSpeed, [[servoID, (currentPos + stepSize) * multiplier]])
+        # sleep(0.01)  # Small delay to control speed of movement (adjust as needed)
+
+        # currentPos = self.getPos(servoID=servoID)
+        # stepSize = 20
 
         # Calculate the distance to the target position
-        distance = abs(pos - currentPos)
+        # distance = abs(pos - currentPos)
 
-        if distance < stepSize:
-            stepSize = distance
+        # if distance < stepSize:
+        #     stepSize = distance
 
-        if pos > currentPos:
-            range_func = range(currentPos, pos + 1, stepSize)  # Move towards pos incrementally
-        else:
-            # Negative step for moving backward
-            range_func = range(currentPos, pos - 1, -stepSize)
+        # if pos > currentPos:
+        #     range_func = range(currentPos, pos + 1, stepSize)  # Move towards pos incrementally
+        # else:
+        #     # Negative step for moving backward
+        #     range_func = range(currentPos, pos - 1, -stepSize)
 
-        for count in range_func:
-            self.boardManager.getBoard().bus_servo_set_position(servoSpeed, [[servoID, count]])
-            sleep(0.01)  # Small delay to control speed of movement (adjust as needed)
+        # for count in range_func:
+        #     self.boardManager.getBoard().bus_servo_set_position(servoSpeed, [[servoID, count]])
+        #     sleep(0.01)  # Small delay to control speed of movement (adjust as needed)
 
         # self.boardManager.getBoard().bus_servo_set_position(servoSpeed, [[servoID, pos]])
-        
+    
+    def getRawPos(self, servoID: int):
+        if(servoID):
+            return self.boardManager.getBoard().bus_servo_read_position(servo_id= servoID)[0]
+        else:
+            return -1
     
     def getPos(self, servoID: int):
         if(servoID):

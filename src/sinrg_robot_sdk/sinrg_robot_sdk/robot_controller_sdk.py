@@ -493,7 +493,8 @@ class Board:
                             if func in self.parsers:
                                 self.parsers[func](data)
                         else:
-                            print("校验失败")
+                            # print("校验失败")
+                            print("Board Verificatio Failed")
                         self.state = PacketControllerState.PACKET_CONTROLLER_STATE_STARTBYTE1
                         continue
         self.port.close()
