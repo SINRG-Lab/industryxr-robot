@@ -10,6 +10,8 @@ from sinrg_robot_sdk.robot_board_manager import BoardManager
 
 class ServoController():
 
+    
+
     def __init__(self):
 
         self.pwm_min = 0
@@ -29,8 +31,26 @@ class ServoController():
                 pos (int) - position in PWM
                 servoSpeed (int) - servo speed; DEFAULT = 1
         """
+        currentPos = self.getPos(servoID=servoID)
+        stepSize = 20
 
-        self.boardManager.getBoard().bus_servo_set_position(servoSpeed, [[servoID, pos]])
+        # Calculate the distance to the target position
+        distance = abs(pos - currentPos)
+
+        if distance < stepSize:
+            stepSize = distance
+
+        if pos > currentPos:
+            range_func = range(currentPos, pos + 1, stepSize)  # Move towards pos incrementally
+        else:
+            # Negative step for moving backward
+            range_func = range(currentPos, pos - 1, -stepSize)
+
+        for count in range_func:
+            self.boardManager.getBoard().bus_servo_set_position(servoSpeed, [[servoID, count]])
+            sleep(0.01)  # Small delay to control speed of movement (adjust as needed)
+
+        # self.boardManager.getBoard().bus_servo_set_position(servoSpeed, [[servoID, pos]])
         
     
     def getPos(self, servoID: int):
