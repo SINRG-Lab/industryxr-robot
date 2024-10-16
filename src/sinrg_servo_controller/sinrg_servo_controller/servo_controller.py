@@ -51,8 +51,8 @@ class ServoController():
         else:
             self.boardManager.getBoard().bus_servo_set_position(servoSpeed, [[servoID, currentPos - stepSize]])
         # sleep(0.2)
-    
 
+        
 
 
         # self.boardManager.getBoard().bus_servo_set_position(servoSpeed, [[servoID, (currentPos + stepSize) * multiplier]])

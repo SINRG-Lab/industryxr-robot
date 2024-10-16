@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            # 'robot_board_manager=sinrg_robot_sdk.robot_board_manager:main'
+            'robot_controller_manager=sinrg_robot_sdk.robot_controller_node:main'
         ],
     },
 )

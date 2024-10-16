@@ -26,7 +26,8 @@ class ServoControllerPubNode(Node):
         self.gripperBaseName = "Gripper Base"
         self.gripperMainName = "Gripper Main"
         
-        self.pollRate = 0.2
+        self.pollRate = 0.02
+
         self.baseTopic = "/unity/robot/servo/base"
         self.lowerArmTopic = "/unity/robot/servo/joint/lower"
         self.middleArmTopic = "/unity/robot/servo/joint/middle"
@@ -47,23 +48,23 @@ class ServoControllerPubNode(Node):
         # self.tempPub = self.createPublisher(Int64, "/servo/sensor/temp", self.pollRate, \
         #                                     self.tempPublisher)
 
-        # self.basePub = self.createPublisher(self.baseName, Int32, self.baseTopic, self.pollRate, \
-        #                                     self.basePublisher)
+        self.basePub = self.createPublisher(self.baseName, Int32, self.baseTopic, self.pollRate, \
+                                            self.basePublisher)
 
-        # self.lowerArmPub = self.createPublisher(self.lowerArmName, Int32, self.lowerArmTopic, self.pollRate, \
-        #                                     self.lowerArmPublisher)
+        self.lowerArmPub = self.createPublisher(self.lowerArmName, Int32, self.lowerArmTopic, self.pollRate, \
+                                            self.lowerArmPublisher)
 
-        # self.middleArmPub = self.createPublisher(self.middleArmName, Int32, self.middleArmTopic, self.pollRate, \
-        #                                     self.middleArmPublisher)
+        self.middleArmPub = self.createPublisher(self.middleArmName, Int32, self.middleArmTopic, self.pollRate, \
+                                            self.middleArmPublisher)
 
-        # self.upperArmPub = self.createPublisher(self.upperArmName, Int32, self.upperArmTopic, self.pollRate, \
-        #                                     self.upperArmPublisher)
+        self.upperArmPub = self.createPublisher(self.upperArmName, Int32, self.upperArmTopic, self.pollRate, \
+                                            self.upperArmPublisher)
 
-        # self.gripperBasePub = self.createPublisher(self.gripperBaseName, Int32, self.gripperBaseTopic, self.pollRate, \
-        #                                     self.gripperBasePublisher) 
+        self.gripperBasePub = self.createPublisher(self.gripperBaseName, Int32, self.gripperBaseTopic, self.pollRate, \
+                                            self.gripperBasePublisher) 
         
-        # self.gripperMainPub = self.createPublisher(self.gripperMainName, Int32, self.gripperMainTopic, self.pollRate, \
-        #                                     self.gripperMainPublisher) 
+        self.gripperMainPub = self.createPublisher(self.gripperMainName, Int32, self.gripperMainTopic, self.pollRate, \
+                                            self.gripperMainPublisher) 
 
         
     def basePublisher(self):
@@ -71,7 +72,7 @@ class ServoControllerPubNode(Node):
         servoPos = self.servoController.pulseToDeg(data)
         msg = Int32()
         msg.data = servoPos
-        print(msg.data)
+        # print(msg.data)
 
         self.basePub.publish(msg)
 

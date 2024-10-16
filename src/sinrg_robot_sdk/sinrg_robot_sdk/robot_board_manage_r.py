@@ -3,14 +3,13 @@ import logging
 from datetime import datetime, timezone
 
 # from config.ConfigUtil import ConfigUtil
-from rclpy.node import Node
-from std_msgs.msg import Bool
+
 from sinrg_robot_sdk.robot_controller_sdk import Board
 
-class BoardManager(Node):
+class BoardManager():
     
-    _instance = None
-    _isBoardActive = None
+    # _instance = None
+    # _isBoardActive = None
     _board = None
 
     # def __new__(cls):
@@ -25,32 +24,28 @@ class BoardManager(Node):
         # if hasattr(self, 'Initialized'):
         # self.boardStatus = self.create_subscription(Bool, "/board/status", self.setBoardCbk, 1)
 
-        if BoardManager._isBoardActive is None:
+        # if BoardManager._isBoardActive is False or BoardManager._isBoardActive is None:
             self.uartAddress = "/dev/ttyACM0"
-            self.setBoardCbk()
-            # self.setBoard()
-            # self.board = Board(device= self.uartAddress)
-            # self._activateBoard()
-            # BoardManager._isBoardActive = True
+            self._initializeBoard()
             print("Board is set to Active state")
+        # else:
+            # print("Board is already active. Using previous instance")
 
-        else:
-            print("Board is already active. using prev instance")
+    def _initializeBoard(self):
 
-    def setBoardCbk(self, msg):
         BoardManager._board = Board(device= self.uartAddress)
         self._activateBoard()
         BoardManager._isBoardActive = True
-        
+
+    def _activateBoard(self):
+        BoardManager._board.enable_reception()
+        logging.info("Robot Controller Initialized.")
+
     def getBoard(self):
         if BoardManager._board is not None:
             return BoardManager._board
         else:
             return -1
-
-    def _activateBoard(self):
-        BoardManager._board.enable_reception()
-        logging.info("Robot Controller Initialized.")
 
     # def getBoardBattery(self):
     #     return self.board.get_battery()
