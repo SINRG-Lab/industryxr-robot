@@ -18,7 +18,7 @@ class ServoController:
         self.pwm_min = 0
         self.pwm_max = 1000
         self.deg_min = 0
-        self.deg_max = 240
+        self.deg_max = 180
 
     def getRawPos(self, servoID: int):
         if(servoID):

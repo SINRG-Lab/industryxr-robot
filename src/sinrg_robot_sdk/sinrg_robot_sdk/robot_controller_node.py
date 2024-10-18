@@ -46,7 +46,7 @@ class RobotController(Node):
         self.gripperBaseName = "Gripper Base"
         self.gripperMainName = "Gripper Main"
         
-        self.pollRate = 0.5
+        self.pollRate = 0.3
 
         self.baseTopic = "/unity/robot/servo/base"
         self.lowerArmTopic = "/unity/robot/servo/joint/lower"
