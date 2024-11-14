@@ -2,8 +2,6 @@ from pathlib import Path
 import json
 import logging
 
-
-
 class ConfigUtil():
     """
      Class to load the ConfigConst configuration file.  
@@ -11,8 +9,10 @@ class ConfigUtil():
 
     def __init__(self):
 
-        fileName = "ConfigConst.json"
-        filePath = Path(__file__).parent / fileName
+        fileName = "ConfigProps.json"
+        # filePath = Path(__file__).parent / fileName
+        # print(filePath)
+        filePath = fileName
 
         self.parsedJson = self._parseJson(filePath)
 
@@ -25,7 +25,7 @@ class ConfigUtil():
             @param key The specific key from the section
             @return value from the section
         """
-        return self.parsedJson.get(section, None).get(key, None)
+        return self.parsedJson
 
     def _parseJson(self, filePath: str):
         """
@@ -36,8 +36,9 @@ class ConfigUtil():
         """
 
         try:
-            with open(filePath, 'r') as file:
+            with open('ConfigProps.json', 'r') as file:
                 data = json.load(file)
+                print(data)
             return data
         except FileNotFoundError:
             logging.error("Failed to load Config from the path specified")
@@ -45,7 +46,3 @@ class ConfigUtil():
             logging.error("An unexpected error has occuered while loading Config file")
 
         return None
-
-# if __name__ == "__main__":
-#     config = ConfigUtil().getValue("info", "IP")
-#     print(config)

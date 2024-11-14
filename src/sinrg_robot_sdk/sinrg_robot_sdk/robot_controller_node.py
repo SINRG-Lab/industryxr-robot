@@ -1,15 +1,18 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Bool, Float32, Int32
-
-from sinrg_robot_sdk.servo_id_enum import SERVO_ENUM
+from std_msgs.msg import Bool, Float32, Int32, String
 
 from datetime import datetime, timezone
 
-from sinrg_robot_sdk.robot_controller_sdk import Board
+from time import sleep
 
-from sinrg_robot_sdk.servo_controller import ServoController
-# from sinrg_robot_sdk.servo_controller_sub_node import ServoControllerSubNode
+from sinrg_robot_sdk.board_manager.robot_board_manager import BoardManager
+from sinrg_robot_sdk.robot_data.robot_val import RobotVal
+from sinrg_robot_sdk.servo_controller.servo_sub_callback import ServoSubscriberCallback
+from sinrg_robot_sdk.servo_controller.servo_pub_callback import ServoPublisherCallback
+from sinrg_robot_sdk.servo_controller.servo_controller import ServoController
+from sinrg_robot_sdk.servo_controller.servo_id_enum import SERVO_ENUM
+
 
 class RobotController(Node):
 
@@ -17,24 +20,30 @@ class RobotController(Node):
         super().__init__("robot_controller_node")
 
         self.board = None
-        self.isBoardActive = None
+        self.boardMgr = BoardManager()
+        self.board = self.boardMgr.getBoard()
         
-        self.uartAddress = "/dev/ttyACM0"
-        self._initializeBoard()
-        
-        self.get_logger().info("Initializing Servo Controller...")
-        self.servoController = ServoController(setFunc = self.board.bus_servo_set_position, \
-                                               getFunc= self.board.bus_servo_read_position)
+        self.get_logger().info("Initializing Servo Data Manager...")
+
+        self.robotData = RobotVal(boardMgr = self.boardMgr)
+        self.servoSubManager = ServoSubscriberCallback(boardMgr = self.boardMgr)
+        self.servoPubManager = ServoPublisherCallback(boardMgr = self.boardMgr)
+        self.servoController = ServoController(boardMgr = self.boardMgr)
 
         # Subscribers
         self.get_logger().info("Initializing Servo Subscribers...")
-        self.resetArmSub = self.create_subscription(Bool, "/arm/servo/reset/all", self.servoController.resetArmCbk, 1)
-        self.setBaseSub = self.create_subscription(Float32, "/arm/servo/base", self.servoController.setBaseCbk, 1)
-        self.setLowerArmSub = self.create_subscription(Float32, "/arm/servo/joint/lower", self.servoController.setJointLowerCbk, 1)
-        self.setMiddleArmSub = self.create_subscription(Float32, "/arm/servo/joint/middle", self.servoController.setJointMiddleCbk, 1)
-        self.setUpperArmSub = self.create_subscription(Float32, "/arm/servo/joint/upper", self.servoController.setJointUpperCbk, 1)
-        self.setGripperBaseSub = self.create_subscription(Float32, "/arm/servo/gripper/base", self.servoController.setGripperBaseCbk, 1)
-        self.setGripperMainSub = self.create_subscription(Float32, "/arm/servo/gripper/main", self.servoController.setGripperMainCbk, 1)
+        self.resetArmSub = self.create_subscription(Float32, "/arm/servo/reset", self.servoSubManager.resetArmCbk, 5)
+        
+        self.setBaseSub = self.create_subscription(Float32, "/arm/servo/base", self.servoSubManager.setBaseCbk, 1)
+        self.setLowerArmSub = self.create_subscription(Float32, "/arm/servo/joint/lower", self.servoSubManager.setJointLowerCbk, 1)
+        self.setMiddleArmSub = self.create_subscription(Float32, "/arm/servo/joint/middle", self.servoSubManager.setJointMiddleCbk, 1)
+        self.setUpperArmSub = self.create_subscription(Float32, "/arm/servo/joint/upper", self.servoSubManager.setJointUpperCbk, 1)
+        self.setGripperBaseSub = self.create_subscription(Float32, "/arm/servo/gripper/base", self.servoSubManager.setGripperBaseCbk, 1)
+        self.setGripperMainSub = self.create_subscription(Float32, "/arm/servo/gripper/main", self.servoSubManager.setGripperMainCbk, 1)
+
+        self.buzzerSub = self.create_subscription(Bool, "/robot/buzzer", self.robotData.setBuzzerCbk, 1)
+        self.torqueState = self.create_subscription(Int32, "/arm/servo/torque", self.servoSubManager.setServoTorqueCbk, 1)
+
         self.get_logger().info("Servo Subscribers initialized.")
 
         # Publishers
@@ -45,8 +54,16 @@ class RobotController(Node):
         self.upperArmName = "Upper Arm"
         self.gripperBaseName = "Gripper Base"
         self.gripperMainName = "Gripper Main"
+
+        self.batteryName = "Robot Battery"
+        self.tempName = "Robot Temp"
+        self.voltName = "Robot Volt"
+        self.torqueName = "Robot Torque"
         
-        self.pollRate = 0.3
+        self.pollRate = 0.02
+        self.stepSize = 50
+
+        self.lastBasePos = None
 
         self.baseTopic = "/unity/robot/servo/base"
         self.lowerArmTopic = "/unity/robot/servo/joint/lower"
@@ -54,6 +71,12 @@ class RobotController(Node):
         self.upperArmTopic = "/unity/robot/servo/joint/upper"
         self.gripperBaseTopic = "/unity/robot/servo/gripper/base"
         self.gripperMainTopic = "/unity/robot/servo/gripper/main"
+
+        self.servoTempTopic = "/robot/servo/temperature"
+        self.servoVoltTopic = "/robot/servo/voltage"
+        self.servoTorqueTopic = "/robot/servo/torque"
+
+        self.batteryTopic = "/robot/battery"
 
         self.basePub = self.createPublisher(self.baseName, Int32, self.baseTopic, self.pollRate, \
                                             self.basePublisher)
@@ -67,71 +90,172 @@ class RobotController(Node):
                                             self.gripperBasePublisher) 
         self.gripperMainPub = self.createPublisher(self.gripperMainName, Int32, self.gripperMainTopic, self.pollRate, \
                                             self.gripperMainPublisher) 
+
+        self.batteryPub = self.createPublisher(self.batteryName, Int32, self.batteryTopic, 5, \
+                                            self.batteryPublisher)  
+        self.tempPub = self.createPublisher(self.tempName, String, self.servoTempTopic, 5, \
+                                            self.servoTempPublisher)
+        self.voltPub = self.createPublisher(self.voltName, String, self.servoVoltTopic, 5, \
+                                            self.servoVoltPublisher)
+        self.torquePub = self.createPublisher(self.torqueName, String, self.servoTorqueTopic, 5, \
+                                            self.servoTorquePublisher)                                      
         self.get_logger().info("Servo Publishers initialized.")
 
-        self.get_logger().info("Servo Controller initialized.")
+        self.get_logger().info("Servo Data Manager initialized.")
 
     
     # --------------------Publishers--------------------------- #
         
     def basePublisher(self):
-        
         data = self.servoController.getRawPos(SERVO_ENUM.BASE_SERVO.value)
-        deg = self.servoController.pulseToDeg(data)
-
-        # print(f"Value is {data} and degree is {deg}")
-        
+        if data is None:
+            return
+        servoPos = self.servoController.pulseToDeg(data)
         msg = Int32()
-        msg.data = deg
-        # print(msg.data)
+        msg.data = servoPos
 
         self.basePub.publish(msg)
+        
+        # pulse = self.servoPubManager.getServoPosPulse(SERVO_ENUM.BASE_SERVO)
+        
+        # if self.lastBasePos is None or abs(pulse - self.lastBasePos) >= 50:
+        #     deg = self.servoPubManager.getServoDeg(SERVO_ENUM.BASE_SERVO)
+        #     msg = Int32()
+        #     msg.data = deg
+            
+        #     # Publish the message
+        #     self.basePub.publish(msg)
+            
+        #     # Update the last published pulse value
+        #     self.lastBasePos = pulse
+        #     print("base"+ str(pulse))
+
+        sleep(0.02)
 
     def lowerArmPublisher(self):
         data = self.servoController.getRawPos(SERVO_ENUM.LOWER_ARM.value)
-        deg = self.servoController.pulseToDeg(data)
+        if data is None:
+            return
+        servoPos = self.servoController.pulseToDeg(data)
         msg = Int32()
-        msg.data = deg
+        msg.data = servoPos
 
-        
-        # print(f"Lower Arm value is {data} and degree is {deg}")
+
+        # deg = self.servoPubManager.getServoLowerArm()
+        # msg = Int32()
+        # msg.data = deg
     
         self.lowerArmPub.publish(msg)
 
+        sleep(0.02)
+
     def middleArmPublisher(self):
         data = self.servoController.getRawPos(SERVO_ENUM.MIDDLE_ARM.value)
-        deg = self.servoController.pulseToDeg(data)
+        if data is None:
+            return
+        servoPos = self.servoController.pulseToDeg(data)
         msg = Int32()
-        msg.data = deg
-        # print(f"Middle Arm value is {data} and degree is {deg}")
+        msg.data = servoPos
+
+        # deg = self.servoPubManager.getServoMiddleArm()
+        # msg = Int32()
+        # msg.data = deg
     
         self.middleArmPub.publish(msg)
 
+        sleep(0.02)
+
     def upperArmPublisher(self):
         data = self.servoController.getRawPos(SERVO_ENUM.UPPER_ARM.value)
-        deg = self.servoController.pulseToDeg(data)
+        if data is None:
+            return
+        servoPos = self.servoController.pulseToDeg(data)
         msg = Int32()
-        msg.data = deg
+        msg.data = servoPos
 
+        # deg = self.servoPubManager.getServoUpperArm()
+        # msg = Int32()
+        # msg.data = deg
     
         self.upperArmPub.publish(msg)
 
+        sleep(0.02)
+
     def gripperBasePublisher(self):
         data = self.servoController.getRawPos(SERVO_ENUM.GRIPPER_BASE.value)
-        deg = self.servoController.pulseToDeg(data)
+        if data is None:
+            return
+        servoPos = self.servoController.pulseToDeg(data)
         msg = Int32()
-        msg.data = deg
-        
+        msg.data = servoPos
 
+        # deg = self.servoPubManager.getServoGripperBase()
+        # msg = Int32()
+        # msg.data = deg
+    
         self.gripperBasePub.publish(msg)
+
+        sleep(0.02)
 
     def gripperMainPublisher(self):
         data = self.servoController.getRawPos(SERVO_ENUM.GRIPPER_MAIN.value)
-        deg = self.servoController.pulseToDeg(data)
+        if data is None:
+            return
+        servoPos = self.servoController.pulseToDeg(data)
         msg = Int32()
-        msg.data = deg
+        msg.data = servoPos
+
+        # deg = self.servoPubManager.getServoGripperMain()
+        # msg = Int32()
+        # msg.data = deg
 
         self.gripperMainPub.publish(msg)
+
+        sleep(0.02)
+
+    def batteryPublisher(self):
+        data = self.robotData.getBattery()
+        if data is None:
+            return
+        msg = Int32()
+        msg.data = data
+
+        self.batteryPub.publish(msg)
+
+        sleep(0.02)
+
+    def servoTempPublisher(self):
+        data = self.servoController.getServoTemp()
+        if data is None:
+            return
+        msg = String()
+        msg.data = data
+
+        self.tempPub.publish(msg)
+
+        sleep(0.02)
+
+    def servoVoltPublisher(self):
+        data = self.servoController.getServoVolt()
+        if data is None:
+            return
+        msg = String()
+        msg.data = data
+
+        self.voltPub.publish(msg)
+
+        sleep(0.02)
+
+    def servoTorquePublisher(self):
+        data = self.servoController.getServoTorque()
+        if data is None:
+            return
+        msg = String()
+        msg.data = data
+
+        self.torquePub.publish(msg)
+
+        sleep(0.02)
 
     def createPublisher(self, publisherName, msgType, msgTopic, pollRate: int, clbFunc, queueSize=1):
         dataPub = self.create_publisher(msgType, msgTopic, queueSize)
@@ -139,21 +263,6 @@ class RobotController(Node):
         self.timer = self.create_timer(pollRate, clbFunc) 
 
         return dataPub
-
-    def _initializeBoard(self):
-        try:
-            self.board = Board(device=self.uartAddress)  # Initialize the board
-            self.board.enable_reception()
-            
-            self.get_logger().info("Board initialized successfully.")
-        except Exception as e:
-            self.get_logger().error(f"Failed to initialize board: {e}")
-            
-    def getBoard(self):
-        if self._board is not None:
-            return self._board
-        else: 
-            return -1
 
 def main():
     rclpy.init()

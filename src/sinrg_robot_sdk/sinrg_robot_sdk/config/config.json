@@ -1,0 +1,31 @@
+{
+    "info":{
+        "project_name": "IndustryXR",
+        "project_group": "SINR-G"  
+    },
+    "device":{
+        "device_id": "hiwonder_001",
+        "location_id": "exp_lab_001"
+    },
+    "communication": {
+        "ip": "10.188.58.100",
+        "uart_address": "/dev/ttyACM0",
+        "ros_tcp_port": "10000",
+        "poll_rate": 1,
+
+        
+        "default":{
+            "DEFAULT_POLL_RATE":1
+        }
+    },
+    "ros_node_name": {
+        "SERVO_CONTROLLER_pub": "servo_publisher"
+    },
+    "ros_topic_name": {
+        "":""
+    },
+    "servo": {
+        "sub": "servo_subscriber"
+    }
+
+}

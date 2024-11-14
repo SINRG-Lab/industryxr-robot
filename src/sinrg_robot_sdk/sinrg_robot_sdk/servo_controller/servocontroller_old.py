@@ -5,24 +5,28 @@ from datetime import datetime, timezone
 
 from std_msgs.msg import Int32
 
-from sinrg_robot_sdk.servo_id_enum import SERVO_ENUM
-class ServoController:
+from sinrg_robot_sdk.servo_controller.servo_id_enum import SERVO_ENUM
+
+class ServoDataManager:
 
     def __init__(self, setFunc, getFunc):
-
+        
         self.setPosition = setFunc
         self.getPosition = getFunc
-        
-       
 
         self.pwm_min = 0
         self.pwm_max = 1000
         self.deg_min = 0
         self.deg_max = 180
 
+        self.prevPos = 500
+
+        self.directionChanged = True
+        self.currectDirection = 1
+
     def getRawPos(self, servoID: int):
         if(servoID):
-
+            
             return self.getPosition(servo_id= servoID)[0]
         else:
             return -1
@@ -33,7 +37,7 @@ class ServoController:
         else:
             return -1
 
-    def setPos(self, servoID:int, pos: int, multiplier: int=1, servoSpeed: int=0.5):
+    def setPos(self, servoID:int, direction: int, servoSpeed: float = 0.5):
         """This class sets the position of the servo motor.
             Arguments:
                 servoID (int) - ID for the servo
@@ -41,21 +45,24 @@ class ServoController:
                 servoSpeed (int) - servo speed; DEFAULT = 1
         """
         currentPos = self.getRawPos(servoID=servoID)
+        # print(currentPos, direction)
         stepSize = 100
 
-        if(pos > 0):
-            # stepDir = 1
-            self.setPosition(servoSpeed, [[servoID, currentPos + stepSize]])
-        else:
-            # stepDir = -1
-            self.setPosition(servoSpeed, [[servoID, currentPos - stepSize]])
+        toPos = (int) (currentPos + (stepSize * direction))
 
-        # self.setPosition(servoSpeed, [[servoID, stepSize * stepDir]])
+        if toPos > 600:
+            toPos = 600
+        elif toPos < 400:
+            toPos = 400
 
-        # for pos in range(currentPos, stepSize, stepDir * stepSize):
-        #     currentPos = self.getRawPos(servoID=servoID)
-        #     self.setPosition(servoSpeed, [[servoID, stepSize]])
-        #     sleep(servoSpeed * 0.01)  # Sleep to control the speed of the movement
+        self.setPosition(servoSpeed, [[servoID, toPos]])
+
+        sleep(0.1)
+
+    def setGripperPos(self, servoID: int, direction: int, servoSpeed: float = 0.5):
+        pulse_pos = self.degToPulse(direction)
+        print(pulse_pos, direction)
+        self.setPosition(servoSpeed, [[servoID, pulse_pos]])
 
     def degToPulse(self, data: float):
         val = ( data / self.deg_max ) * self.pwm_max
@@ -79,27 +86,28 @@ class ServoController:
 
     def setBaseCbk(self, msg):
         data = msg.data
-        self.setPos(servoID= SERVO_ENUM.BASE_SERVO.value, pos=data, servoSpeed=0.5)
+        self.setPos(servoID= SERVO_ENUM.BASE_SERVO.value, direction=data, servoSpeed=0.3)
 
     def setJointLowerCbk(self, msg):
         data = msg.data
-        self.setPos(servoID= SERVO_ENUM.LOWER_ARM.value, pos=data, servoSpeed=0.5)
+        self.setPos(servoID= SERVO_ENUM.LOWER_ARM.value, direction=data, servoSpeed=0.3)
 
     def setJointMiddleCbk(self, msg):
         data = msg.data
-        self.setPos(servoID= SERVO_ENUM.MIDDLE_ARM.value, pos=data, servoSpeed=0.5)
+        self.setPos(servoID= SERVO_ENUM.MIDDLE_ARM.value, direction=data, servoSpeed=0.3)
 
     def setJointUpperCbk(self, msg):
         data = msg.data
-        self.setPos(servoID= SERVO_ENUM.UPPER_ARM.value, pos=data, servoSpeed=0.5)
+        self.setPos(servoID= SERVO_ENUM.UPPER_ARM.value, direction=data, servoSpeed=0.3)
 
     def setGripperBaseCbk(self, msg):
         data = msg.data
-        self.setPos(servoID= SERVO_ENUM.GRIPPER_BASE.value, pos=data, servoSpeed=0.5)
+        self.setPos(servoID= SERVO_ENUM.GRIPPER_BASE.value, direction=data, servoSpeed=0.3)
 
     def setGripperMainCbk(self, msg):
         data = msg.data
-        self.setPos(servoID= SERVO_ENUM.GRIPPER_MAIN.value, pos=data, servoSpeed=0.5)
+        print(data)
+        self.setGripperPos(servoID= SERVO_ENUM.GRIPPER_MAIN.value, direction=data, servoSpeed=0.3)
 
 
     # # --------------------Publishers--------------------------- #
