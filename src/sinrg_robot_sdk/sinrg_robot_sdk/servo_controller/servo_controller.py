@@ -110,6 +110,7 @@ class ServoController:
         return torques
 
     def setTorqueState(self, state: int):
+        
         for servoID in self.servoList:
             if(state == 1):
                 self.board.bus_servo_enable_torque(servoID, 1)

@@ -42,7 +42,7 @@ class RobotController(Node):
         self.setGripperMainSub = self.create_subscription(Float32, "/arm/servo/gripper/main", self.servoSubManager.setGripperMainCbk, 1)
 
         self.buzzerSub = self.create_subscription(Bool, "/robot/buzzer", self.robotData.setBuzzerCbk, 1)
-        self.torqueState = self.create_subscription(Int32, "/arm/servo/torque", self.servoSubManager.setServoTorqueCbk, 1)
+        self.torqueState = self.create_subscription(Int32, "/arm/servo/set/torque", self.servoSubManager.setServoTorqueCbk, 1)
 
         self.get_logger().info("Servo Subscribers initialized.")
 
