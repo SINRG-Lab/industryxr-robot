@@ -15,7 +15,10 @@ class ServoController:
         self.deg_min = 0
         self.deg_max = 180
 
-        self.servoList = [SERVO_ENUM.BASE_SERVO.value, SERVO_ENUM.LOWER_ARM.value, \
+        # self.servoList = [SERVO_ENUM.BASE_SERVO.value, SERVO_ENUM.LOWER_ARM.value, \
+        #                   SERVO_ENUM.MIDDLE_ARM.value, SERVO_ENUM.UPPER_ARM.value, SERVO_ENUM.GRIPPER_BASE.value, SERVO_ENUM.GRIPPER_MAIN.value]
+
+        self.servoList = [SERVO_ENUM.BASE_SERVO.value, \
                           SERVO_ENUM.MIDDLE_ARM.value, SERVO_ENUM.UPPER_ARM.value, SERVO_ENUM.GRIPPER_BASE.value, SERVO_ENUM.GRIPPER_MAIN.value]
 
     def getPos(self, servoID: int):

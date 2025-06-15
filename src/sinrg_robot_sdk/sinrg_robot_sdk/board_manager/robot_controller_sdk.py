@@ -547,8 +547,8 @@ def pwm_servo_test(board):
     print('position:', board.pwm_servo_read_position(servo_id))
 
 if __name__ == "__main__":
-    # board = Board()
-    # board.enable_reception()
+    board = Board()
+    board.enable_reception()
     # board.bus_servo_set_position(0.5, [[1, 0]])
     # print(board.get_sbus())
         # time.sleep(2)
@@ -571,7 +571,7 @@ if __name__ == "__main__":
     
     # time.sleep(1)
 
-    # board.bus_servo_set_position(0.5, [[1, 1000]])
+    # board.bus_servo_set_position(0.5, [[2, 500]])
     # board.set_buzzer(3000, 0.15, 0.05, 5)
     # servo_pos = board.bus_servo_read_position(1)
     # print(servo_pos)

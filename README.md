@@ -60,6 +60,8 @@ ros2 run ros_tcp_endpoint default_server_endpoint --ros-args -p ROS_IP:=10.188.5
 ros2 run sinrg_robot_sdk robot_controller_manager
 ```
 
+---
+
 **Option 2:** Run all packages using the launch file
 
 ```bash
